@@ -4,6 +4,7 @@ LBYARCH
 Input Format
 Inputs provided are the size and the elements of the matrix. Suppose the input is Matrix A from
 the above example. Wherein Matrix A is a 3x2 Matrix. The input would have been:
+
 3.0
 2.0
 1.0
@@ -12,6 +13,7 @@ the above example. Wherein Matrix A is a 3x2 Matrix. The input would have been:
 4.0
 5.0
 6.0
+
 Wherein the first input is the rowsize, second input is the columnsize and the succeeding inputs
 are the elements of the matrix from left to right and top to bottom.
 
