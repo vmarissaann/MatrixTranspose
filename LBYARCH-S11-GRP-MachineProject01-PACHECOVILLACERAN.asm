@@ -4,6 +4,12 @@
 	ecall
 .end_macro
 
+.macro PRINT_STRING(%x)
+	li a7, 4 #print string
+	la a0, %x
+	ecall
+.end_macro
+
 .macro GET_FLOAT(%x)
     	li a7, 6
     	ecall
@@ -11,24 +17,34 @@
 
 .macro PRINT_FLOAT(%x)
 	fmv.s fa0, %x
-       	li a7, 2
-       	ecall
+	li a7, 2
+	ecall
 .end_macro
 
-.text
-    	GET_FLOAT f0
-    	fmv.s fa0, f0
-    	PRINT_FLOAT fa0
+	
+.text	
+	#for column
+    	GET_FLOAT fa0
+    	fmv.s fa1, fa0
+    	PRINT_FLOAT fa1 #for checking, can be removed later
     	NEWLINE
-    	GET_FLOAT f1
-    	PRINT_FLOAT f1
+    	
+   	#for row
+    	GET_FLOAT fa0
+    	fmv.s fa2, fa0
+    	PRINT_FLOAT fa2 #for checking, can be removed later
+    	NEWLINE
+    	
+    	
+    	
+    	
 
-# September 24
+# September 24 (DONE)
 # step 1: maybe flw??
 # 	try to get float such that it can be stored in a floating point register
 # for checking: should be able to print the value from the register ( i.e. from fa0), error rn: NaN for output
 
-# September 24
+# September 24 (DONE)
 #step 2: get input for column and row
 
 # September 25
