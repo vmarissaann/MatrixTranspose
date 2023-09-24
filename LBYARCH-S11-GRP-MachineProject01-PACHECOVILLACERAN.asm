@@ -28,9 +28,7 @@
 .end_macro
 
 .data
-	reset: .float 0.0
-	colc: .float 0.0
-	rowc: .float 0.0
+	empty: .float 0.0
 	counter: .float 1.0
 	input_row: .asciz "Row: "
 	input_col: .asciz "Column: "
@@ -51,11 +49,11 @@
     	fmv.s fa2, fa0
     	
     	# row counter 
-    	la t1, rowc
+    	la t1, empty
     	flw fa3, (t1)
     	
     	# col counter
-    	la t2, colc
+    	la t2, empty
     	flw fa4, (t2)
     	
     	# counter
@@ -63,7 +61,7 @@
     	flw fa5, (t3)
     	
     	# reset to 0
-    	la t4, reset
+    	la t4, empty
     	flw fa6, (t4)
     	
     	# fa1 - row (ex.3)
