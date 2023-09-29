@@ -4,14 +4,20 @@
 	ecall
 .end_macro
 
+.macro GET_FLOAT(%x)
+    	li a7, 6
+    	ecall
+.end_macro
+
 .macro GET_INT(%x)
        	li a7, 5
 	ecall
 .end_macro
 
-.macro GET_FLOAT(%x)
-    	li a7, 6
-    	ecall
+.macro PRINT_FLOAT(%x)
+	fmv.s fa0, %x
+	li a7, 2
+	ecall
 .end_macro
 
 .macro PRINT_DEC(%x)
@@ -26,76 +32,105 @@
 	ecall
 .end_macro
 
-.macro PRINT_FLOAT(%x)
-	fmv.s fa0, %x
-	li a7, 2
-	ecall
-.end_macro
-
 .data
 	input_row: .asciz "Row: "
 	input_col: .asciz "Column: "
-	input: .asciz "Input: "
-
-.text	
-	# initialize
-	li t1, 0 # row ctr
-	li t2, 0 # col 
-	li t3, 0 # reset
-    	
-    	# for row
-    	PRINT_STRING input_row
-    	GET_INT a0
-    	mv a1, a0 
-    	
-    	# for column
+	space: .asciz " "
+	arr: .word 0
+	
+.text
+	li s1, 0
+	li s2, 0
+	li s3, 0
+	li s4, -8
+	li s5, 8
+	
+	PRINT_STRING input_row
+	GET_INT a0
+	mv a1, a0
+	
 	PRINT_STRING input_col
-    	GET_INT a0
-    	mv a2, a0
-    	    	    	    	
-    	# a1 - row 
-    	# a2 - col 
-    	# t1 - row ctr
-    	# t2 - col ctr
-    	# t3 - resets to 0
-    	# t4 - increments 1
-    	
-	# iterate through columns for row num of times
+	GET_INT a0
+	mv a2, a0
 	
-	get_row:  
-	bne a1, t1, get_col
-	beq a1, t1, add_row
+	mul a3, a1, a2
+	la t4, arr
 	
-	get_col:
-	PRINT_STRING input
+	# NOTE:
+	# a1 - row size
+	# a2 - col size
+	# a3 - matrix size
+	# s1 - input ctr
+	# s2 - row ctr
+	# s3 - col ctr
+	# s4 - calling elements
+	# t4 - array
+	# t5 - adjusting elements (resetting)
+	# t6 - adjusting elements (moving in array)
+	
+	# ==============================================================
+	
+	get_input:
 	GET_FLOAT fa0
-	fmv.s fa1, fa0
-	addi t1, t1, 1
-	J get_row
+	fsw fa0, 0(t4)
+	addi t4, t4, 8
+	addi s1, s1, 1
+	blt s1, a3, get_input
+	beq s1, a3, reset
 	
-	add_row: 
-	addi t2, t2, 1
-	mv t1, t3 
-	bne a2, t2, get_row
-	beq a2, t2, output
+	# ==============================================================
 	
-	output:
-	PRINT_FLOAT fa1 # print last number inputted
+	# reset array to start at first element
+	# calculation: num of input (a3) * word size (s4)
+	# word size is always 8, but we use -8 here to move back
+	# also resets col ctr (s3) to 0
+	# ISSUES HERE!
+	reset:
+	li s3, 0 
+
+	mul t5, a3, s4
+	add t4, t4, t5
+	mul t6, s5, s2
+	add t4, t4, t6
 	
-# September 24 (DONE)
-# step 1: maybe flw??
-# 	try to get float such that it can be stored in a floating point register
-# for checking: should be able to print the value from the register ( i.e. from fa0), error rn: NaN for output
-
-# September 24 (DONE)
-#step 2: get input for column and row
-
-# September 25 (DONE)
-#step 3: to be able to input floating numbers based on column x row ( i.e. 2 rows, 3 columns = 6 number inputs)
-
-# September 29
-#step 4: store input variables in array 
-# for checking: check register if properly stored
-
-# September 30
-#step 5: transpose in memory (research abt this) / output based on array count or wtvr
+	J get_col
+	
+	# ==============================================================
+	
+	# print a row based on original column size
+	get_col:
+	flw fa0, 0(t4)
+	PRINT_FLOAT fa0
+	PRINT_STRING space
+	
+	# to get the next, we adjust based on col size
+	# calculation: col size (a2) * word size (s5)
+	# word size is always 8, and we use 8 here to move forward
+	mul t6, a2, s5	
+	add t4, t4, t6
+		
+	# stop loop when num of columns (s3) match og num of rows (a1)
+	addi s3, s3, 1
+	blt s3, a1, get_col
+	beq s3, a1, get_row
+	
+	# ==============================================================
+	
+	# prints the next rows
+	get_row:
+	NEWLINE
+	
+	# stop program when num of rows (s2) match og num of columns (a2)
+	addi s2, s2, 1
+	beq s2, a2, end
+	
+	# else, prepare to reset for next row
+	blt s2, a2, reset
+	
+	# ==============================================================
+	
+	# END OF PROGRAM
+	end:
+	li a7, 10
+	ecall
+	
